@@ -1,0 +1,138 @@
+% Bowtie Diagram 
+% Author: 3implieschaos
+\documentclass[border=10pt]{standalone}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.multipart}
+\usetikzlibrary{patterns}
+
+
+\begin{document}
+  \def\threatsx{-16}
+  \def\consequencesx{16}
+  \begin{tikzpicture}[
+      auto,
+      node distance=0cm,
+      every text node part/.style={align=center},
+      topevent/.style={circle,
+                      draw,
+                      very thick,
+                      fill=red,
+                      font=\sffamily\Large\bfseries,
+                      inner sep=5pt,
+                      minimum size=30mm,
+                      align=center},
+      escalation/.style={rectangle,
+                  draw,
+                  very thick,
+                  fill=yellow,
+                  font=\sffamily\Large\bfseries,
+                  inner sep=5pt,
+                  minimum width=45mm,
+                  minimum height=10mm},
+      threat/.style={rectangle,
+                  draw,
+                  very thick,
+                  fill=blue,
+                  text=white,
+                  font=\sffamily\Large\bfseries,
+                  inner sep=5pt,
+                  minimum width=45mm,
+                  minimum height=10mm},
+      consequence/.style={rectangle,
+                  draw,
+                  very thick,
+                  fill=red,
+                  font=\sffamily\Large\bfseries,
+                  inner sep=5pt,
+                  minimum width=45mm,
+                  minimum height=10mm},
+      control/.style={rectangle,
+                    draw=black!50,
+                    fill=black!20,
+                    thick,
+                    minimum width=0.8cm,
+                    minimum height=1.8cm},
+      paths/.style={-, ultra thick}
+  ]
+
+  % see https://tex.stackexchange.com/questions/29359/pgfplots-how-to-fill-the-area-under-a-curve-with-oblique-lines-hatching-as-a/29367#29367
+  \tikzset{
+        hatch distance/.store in=\hatchdistance,
+        hatch distance=10pt,
+        hatch thickness/.store in=\hatchthickness,
+        hatch thickness=2pt
+    }
+
+    \makeatletter
+    \pgfdeclarepatternformonly[\hatchdistance,\hatchthickness]{flexible hatch}
+    {\pgfqpoint{0pt}{0pt}}
+    {\pgfqpoint{\hatchdistance}{\hatchdistance}}
+    {\pgfpoint{\hatchdistance-1pt}{\hatchdistance-1pt}}%
+    {
+        \pgfsetfillcolor{yellow}
+        \pgfsetcolor{black}%{\tikz@pattern@color}
+        \pgfsetlinewidth{\hatchthickness}
+        \pgfpathmoveto{\pgfqpoint{0pt}{0pt}}
+        \pgfpathlineto{\pgfqpoint{\hatchdistance}{\hatchdistance}}
+        \pgfusepath{stroke}
+    }
+    \makeatother
+
+
+  % Hazard
+  \draw[yellow, fill=yellow, opacity=0.5, pattern=flexible hatch] (-2,5) rectangle (2,3);
+  \node[escalation] (hazard) at (0,4) {Laptop Contains \\ Financial Data};
+
+  % Top Event
+  \node [topevent] (top_event) at (0,0) {Loss of Laptop};
+  \draw [paths] (hazard) to node { } (top_event);
+
+  % Threats
+  \node [threat] (threat1) at (\threatsx, 4) {Theft};
+  \node[control] (controlt1) at (\threatsx/2, 4/2) {};
+  \node [below=of controlt1, font=\sffamily\Large\bfseries] {Security\\Locks};
+  \draw [paths] (threat1) to node { } (controlt1);
+  \draw [paths] (controlt1) to node { } (top_event);
+
+  \node [threat] (threat2) at (\threatsx, -4) {Misplaced};
+  \node[control] (controlt2) at (\threatsx/2, -4/2) {};
+  \node [below=of controlt2, font=\sffamily\Large\bfseries] {Geolocation};
+  \draw [paths] (threat2) to node { } (controlt2);
+  \draw [paths] (controlt2) to node { } (top_event);
+
+
+  % Consequences
+  \node [consequence] (consequence1) at (\consequencesx, 7) {Financial Loss};
+  \draw [paths] (top_event) to node { } (consequence1);
+
+
+  \node [consequence] (consequence2) at (\consequencesx, 0) {Data Loss};
+  \node[control] (control2) at (\consequencesx/2, 0) {};
+  \node [below=of control2, font=\sffamily\Large\bfseries] {Encryption};
+  \draw [paths] (top_event) to node { } (control2);
+  \draw [paths] (control2) to node { } (consequence2);
+
+
+  \node [consequence] (consequence3) at (\consequencesx, -7) {Financial Compromise};
+  \node[control] (control3a) at (\consequencesx-10, -4) {};
+  \node [below=of control3a, font=\sffamily\Large\bfseries] {Encryption};
+  \draw [paths] (top_event) to node { } (control3a);
+  \node[control] (control3b) at (\consequencesx-5, -6) {};
+  \node [below=of control3b, font=\sffamily\Large\bfseries] {MFA};
+  \draw [paths] (control3a) to node { } (control3b);
+  \draw [paths] (control3b) to node { } (consequence3);
+
+  \node [escalation] (escalation1) at (\consequencesx-2, -2.5) {User disables \\ Encryption};
+  \node[control] (controle1) at (\consequencesx-5, -2.5) {};
+  \node [below=of controle1, font=\sffamily\Large\bfseries] {Policy \\ requires};
+  \draw [paths] (control2) to node { } (controle1);
+  \draw [paths] (control3a) to node { } (controle1);
+  \draw [paths] (controle1) to node { } (escalation1);
+
+
+  \end{tikzpicture}
+
+\end{document}
